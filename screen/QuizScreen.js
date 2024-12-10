@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Button, StyleSheet } from "react-native";
 
-const API_BASE_URL = "http://10.0.2.2:5000"; // Replace with your backend API base URL
+const API_BASE_URL = "http://192.168.0.102:5000"; // Replace with your backend API base URL
 
-const QuizScreen = ({ navigation }) => {
+const QuizScreen = ({ navigation, route }) => {
   const [timeLeft, setTimeLeft] = useState(15); // 15 seconds per question
   const [answers, setAnswers] = useState([]);
   const [questions, setQuestions] = useState([]);
@@ -11,16 +11,24 @@ const QuizScreen = ({ navigation }) => {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [score, setScore] = useState(0);
 
+  const { quizId } = route.params;
   // Fetch the quiz data when the component mounts
+  // Fetch quiz data based on quizId from route.params
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/quizzes`);
         const data = await response.json();
-        if (data.length > 0) {
-          setSelectedQuiz(data[0]); // Selecting the first quiz for simplicity
-          setQuestions(data[0].questions);
-          setAnswers(new Array(data[0].questions.length).fill(null)); // Initialize answers array
+
+        const { quizId } = route.params; // Get quizId from params
+        const quiz = data.find((q) => q._id === quizId); // Find the quiz by id
+
+        if (quiz) {
+          setSelectedQuiz(quiz);
+          setQuestions(quiz.questions); // Set questions
+          setAnswers(new Array(quiz.questions.length).fill(null)); // Initialize answers array
+        } else {
+          console.error("Quiz not found");
         }
       } catch (error) {
         console.error("Error fetching quiz: ", error);
@@ -28,7 +36,7 @@ const QuizScreen = ({ navigation }) => {
     };
 
     fetchQuiz();
-  }, []);
+  }, [route.params]); // Runs whenever route.params changes (e.g., when quizId changes)
 
   // Timer countdown
   useEffect(() => {

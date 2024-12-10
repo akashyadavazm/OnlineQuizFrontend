@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 
-const API_BASE_URL = "http://10.0.2.2:5000"; // Replace with your backend API base URL
+const API_BASE_URL = "http://192.168.0.102:5000"; // Replace with your backend API base URL
 
 const QuizList = ({ navigation }) => {
   const [quizzes, setQuizzes] = useState([]);  // State to store quizzes
@@ -36,8 +36,8 @@ const QuizList = ({ navigation }) => {
 
   // Render quiz list
   return (
-    <ImageBackground 
-    source={require('../components/BackgroundImage.png')} // Replace with your image URL or local image
+    <ImageBackground
+      source={require('../components/BackgroundImage.jpg')} // Replace with your image URL or local image
       style={styles.container}
     >
       <Text style={styles.textItem}>Quizzes</Text>

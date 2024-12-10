@@ -1,9 +1,10 @@
+import { useNavigation } from "@react-navigation/native";
 import { useState, useEffect } from "react";
-import { FlatList, View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { FlatList, View, Text, StyleSheet, ActivityIndicator, Button } from "react-native";
 
-const API_BASE_URL = "http://10.0.2.2:5000"; // Replace with your backend API URL
+const API_BASE_URL = "http://192.168.0.102:5000"; // Replace with your backend API URL
 
-const LeaderboardScreen = ({ route }) => {
+const LeaderboardScreen = ({ route, navigation }) => {
   const { quizId } = route.params || {};
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,8 +15,9 @@ const LeaderboardScreen = ({ route }) => {
       try {
         const response = await fetch(`${API_BASE_URL}/quizzes`);
         const data = await response.json();
+        const quiz = data.find((q) => q._id === quizId); // Find the quiz by id
         if (data.length > 0) {
-          setLeaderboard(data[0].scores);
+          setLeaderboard(quiz.scores);
           setLoading(false); // Stop loading
         }
       } catch (error) {
@@ -26,6 +28,14 @@ const LeaderboardScreen = ({ route }) => {
 
     fetchLeaderboard();
   }, []);
+
+  // Reset app function
+  const handleResetApp = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "QuizList" }], // Replace "Home" with your initial screen's name
+    });
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Leaderboard</Text>
@@ -47,6 +57,7 @@ const LeaderboardScreen = ({ route }) => {
           keyExtractor={(item, index) => index.toString()}
         />
       )}
+      <Button title="Explore Quizzes" onPress={handleResetApp} color="#ff5c5c" />
     </View>
   );
 };
