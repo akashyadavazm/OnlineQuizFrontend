@@ -1,8 +1,8 @@
-import { useNavigation } from "@react-navigation/native";
 import { useState, useEffect } from "react";
-import { FlatList, View, Text, StyleSheet, ActivityIndicator, Button } from "react-native";
+import { FlatList, View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 
 const API_BASE_URL = "http://192.168.0.102:5000"; // Replace with your backend API URL
+// const API_BASE_URL = "http://10.0.2.2:5000"; // Replace with your backend API URL
 
 const LeaderboardScreen = ({ route, navigation }) => {
   const { quizId } = route.params || {};
@@ -57,7 +57,9 @@ const LeaderboardScreen = ({ route, navigation }) => {
           keyExtractor={(item, index) => index.toString()}
         />
       )}
-      <Button title="Explore Quizzes" onPress={handleResetApp} color="#ff5c5c" />
+      <TouchableOpacity style={styles.buttonContainer} onPress={handleResetApp}>
+        <Text style={styles.buttonText}>Explore Quizzes</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -98,6 +100,19 @@ const styles = StyleSheet.create({
   },
   score: {
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  buttonContainer: {
+    backgroundColor: "#007bff", // Button background color
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 25, // Rounded corners
+    alignItems: "center", // Center the text inside the button
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#fff", // White text
+    fontSize: 15,
     fontWeight: "bold",
   },
 });

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Button, StyleSheet } from "react-native";
-
+// const API_BASE_URL = "http://10.0.2.2:5000"; // Replace with your backend API URL
 const API_BASE_URL = "http://192.168.0.102:5000"; // Replace with your backend API base URL
+// const API_BASE_URL = "http://localhost:5000"; // Replace with your backend API base URL
 
 const QuizScreen = ({ navigation, route }) => {
   const [timeLeft, setTimeLeft] = useState(15); // 15 seconds per question
@@ -11,9 +12,7 @@ const QuizScreen = ({ navigation, route }) => {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [score, setScore] = useState(0);
 
-  const { quizId } = route.params;
   // Fetch the quiz data when the component mounts
-  // Fetch quiz data based on quizId from route.params
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
@@ -21,6 +20,7 @@ const QuizScreen = ({ navigation, route }) => {
         const data = await response.json();
 
         const { quizId } = route.params; // Get quizId from params
+        console.log("quizIdInFrontend",quizId);
         const quiz = data.find((q) => q._id === quizId); // Find the quiz by id
 
         if (quiz) {
@@ -64,19 +64,43 @@ const QuizScreen = ({ navigation, route }) => {
     setAnswers(updatedAnswers);
   };
 
-  // Calculate the score for correct answers
-  const calculateScore = () => {
+  const calculateScore = async () => {
     let totalScore = 0;
-
+    let quizId = route.params.quizId;  
+    // Calculate the score
     answers.forEach((answer, index) => {
       if (answer === questions[index].correctAnswer) {
         totalScore += 1;
       }
     });
-
     setScore(totalScore);
-    navigation.navigate("Results", { score: totalScore, questions, quizId: selectedQuiz._id });
+    
+    try {
+      // Send the score to the backend
+      console.log("Request URL:", `${API_BASE_URL}/quizzes/${quizId}/submit`);
+      const response = await fetch(`${API_BASE_URL}/quizzes/${quizId}/submit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user: "Anonymous", score: totalScore }), // Replace "Anonymous" with the actual user name if available
+        
+      });
+      console.log(!response.ok);
+      if (!response.ok) {
+        throw new Error("Failed to submit score");
+      }
+      const result = await response.json();
+      console.log("Score submitted successfully:", result);
+  
+      // Navigate to the Results screen after successful submission
+      navigation.navigate("Results", { score: totalScore, questions, quizId });
+    } catch (error) {
+      console.error("Error submitting score:", error);
+      alert("Error submitting score. Please try again.");
+    }
   };
+  
 
   // Navigate to the next question and reset timer
   const nextQuestion = () => {
@@ -103,7 +127,7 @@ const QuizScreen = ({ navigation, route }) => {
       <Text style={styles.timer}>{`Time Left: ${timeLeft}s`}</Text>
 
       <View style={styles.questionContainer}>
-        <Text style={styles.question}>{questions[currentQuestionIndex].question}</Text>
+        <Text style={styles.question}>{`Question ${currentQuestionIndex + 1} : ${questions[currentQuestionIndex].question}`}</Text>
         {questions[currentQuestionIndex].options.map((option, i) => (
           <TouchableOpacity
             key={i}

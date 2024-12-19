@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, FlatList, Button, StyleSheet } from "react-native";
+import { View, Text, FlatList, Button, StyleSheet, TouchableOpacity } from "react-native";
 
 const ResultsScreen = ({ route, navigation }) => {
   const { score, questions, quizId } = route.params || { score: 0, questions: [], quizId: null };
@@ -18,10 +18,12 @@ const ResultsScreen = ({ route, navigation }) => {
         )}
         keyExtractor={(item, index) => index.toString()}
       />
-      <Button
-        title="View Leaderboard"
+      <TouchableOpacity
+        style={styles.buttonContainer}
         onPress={() => navigation.navigate('Leaderboard', { quizId })}
-      />
+      >
+        <Text style={styles.buttonText}>View Leaderboard</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -58,6 +60,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#007bff', // Blue for explanation
     fontStyle: 'italic',
+  },
+  buttonContainer: {
+    backgroundColor: "#007bff", // Button background color
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 25, // Rounded corners
+    alignItems: "center", // Center the text inside the button
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#fff", // White text
+    fontSize: 15,
+    fontWeight: "bold",
   },
 });
 
